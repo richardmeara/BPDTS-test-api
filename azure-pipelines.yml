@@ -44,7 +44,7 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
     testAssemblyVer2: |
-     BPDTS-Test.API.Test\bin\$(BuildConfiguration)\netcoreapp3.1\BPDTS_Test.API.Tests.dll
+     BPDTS_Test.API.Tests\bin\$(BuildConfiguration)\netcoreapp3.1\BPDTS_Test.API.Tests.dll
      !**\obj\**
 
 - task: PublishSymbols@2
