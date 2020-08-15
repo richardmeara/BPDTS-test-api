@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BPDTS_Test.API", "BPDTS_Test.API\BPDTS_Test.API.csproj", "{17CAF966-A0E1-4478-BCF5-4AB9CDCD438D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BPDTS_Test.API.Tests", "BPDTS_Test.API.Tests\BPDTS_Test.API.Tests.csproj", "{46564ACF-F727-4EB0-BEA4-71A7FF34BEAA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{17CAF966-A0E1-4478-BCF5-4AB9CDCD438D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17CAF966-A0E1-4478-BCF5-4AB9CDCD438D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17CAF966-A0E1-4478-BCF5-4AB9CDCD438D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17CAF966-A0E1-4478-BCF5-4AB9CDCD438D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46564ACF-F727-4EB0-BEA4-71A7FF34BEAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46564ACF-F727-4EB0-BEA4-71A7FF34BEAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46564ACF-F727-4EB0-BEA4-71A7FF34BEAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46564ACF-F727-4EB0-BEA4-71A7FF34BEAA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A2318005-5374-4CBF-8277-5F6F34CF755A}
+	EndGlobalSection
+EndGlobal
