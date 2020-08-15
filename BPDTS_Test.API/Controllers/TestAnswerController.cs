@@ -24,6 +24,7 @@ namespace BPDTS_Test.API.Controllers
         private const double LondonLongitude = 0.1277;
         private const double MetresToMiles = 0.00062137;
         private const double DistanceToLondonRequirement = 60;
+        private const string LondonCityName = "London";
 
         public TestAnswerController(ILogger<TestAnswerController> logger, IBPDTSTestAppService mainService)
         {
@@ -37,53 +38,26 @@ namespace BPDTS_Test.API.Controllers
         {
             try
             {
-                var londonUsers = await _mainService.GetUsersByCity("London");
+                List<User> londonUsers = await _mainService.GetUsersByCity(LondonCityName);
                 if (londonUsers == null)
                 {
                     return NotFound();
                 }
 
-                var allusers = await _mainService.GetUsers();
-                if (allusers == null)
+                List<User> usersWithinLondonLimit = await GetUsersByLondonProximity();
+                if (usersWithinLondonLimit == null)
                 {
                     return NotFound();
                 }
-                List<User> usersWithin60Miles = new List<User>();
-                GeoCoordinate londonCoordinates = new GeoCoordinate(LondonLatitude, LondonLongitude);
-
-                //merge
-                foreach (var usr in allusers)
-                {
-                    double castLat = double.Parse(usr.latitude);
-                    double castLong = double.Parse(usr.longitude);
-                    //Only add valid users with correct coordinates
-                    if (castLat >= LatitudeMinimum && castLat <= LatitudeMaximum && castLong >= LongitudeMinimum && castLong <= LongitudeMaximum)
-                    {
-                        //Get the user location from API and compare against central London coordinates
-                        GeoCoordinate userLocation = new GeoCoordinate(double.Parse(usr.latitude), double.Parse(usr.longitude));
-                        double distanceInMetres = userLocation.GetDistanceTo(londonCoordinates);
-                        double distanceInMiles = 0;
-                        //if the distance is valid
-                        if (distanceInMetres > 0)
-                        {
-                            //convert the metres to miles
-                            distanceInMiles = (distanceInMetres * MetresToMiles);
-                            if (distanceInMiles <= DistanceToLondonRequirement)
-                            {
-                                usersWithin60Miles.Add(usr);
-                            }
-                        }
-                    }
-                }
 
                 //combine the users from both lists and return
-                var totalUsers = londonUsers.Concat(usersWithin60Miles).ToList();
+                List<User> totalUsers = londonUsers.Concat(usersWithinLondonLimit).ToList();
 
                 return Ok(totalUsers);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"API: Exception thrown when retreiving londons users: {ex}");
+                _logger.LogError($"API: Exception thrown when retreiving londons users by city name and coordinates: {ex}");
             }
 
             return BadRequest();
@@ -95,18 +69,18 @@ namespace BPDTS_Test.API.Controllers
         {
             try
             {
-                var londonUsers = await _mainService.GetUsersByCity("London");
+                //simply return users by city name of London
+                List<User> londonUsers = await _mainService.GetUsersByCity(LondonCityName);
                 if (londonUsers == null)
                 {
                     return NotFound();
                 }
 
-                //simply return users by city name of London
                 return Ok(londonUsers);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"API: Exception thrown when retreiving londons users: {ex}");
+                _logger.LogError($"API: Exception thrown when retreiving londons users by city name: {ex}");
             }
 
             return BadRequest();
@@ -118,47 +92,61 @@ namespace BPDTS_Test.API.Controllers
         {
             try
             {
-                var allusers = await _mainService.GetUsers();
-                if (allusers == null)
+                //return only users within 60 miles of the center of london
+                List<User> usersWithinLondonLimit = await GetUsersByLondonProximity();
+                if (usersWithinLondonLimit == null)
                 {
                     return NotFound();
                 }
-                List<User> usersWithin60Miles = new List<User>();
-                GeoCoordinate londonCoordinates = new GeoCoordinate(LondonLatitude, LondonLongitude);
 
-                foreach (var usr in allusers)
+                return Ok(usersWithinLondonLimit);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"API: Exception thrown when retreiving londons users by coordinates: {ex}");
+            }
+
+            return BadRequest();
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public async Task<List<User>> GetUsersByLondonProximity()
+        {
+            var allUsers = await _mainService.GetUsers();
+            if (allUsers == null)
+            {
+                return null;
+            }
+            List<User> usersWithinLondonLimit = new List<User>();
+            GeoCoordinate londonCoordinates = new GeoCoordinate(LondonLatitude, LondonLongitude);
+
+            //Loop over every user
+            foreach (var usr in allUsers)
+            {
+                //If their latitude and longitudes are valid doubles continue
+                if (double.TryParse(usr.latitude, out double castLat) && double.TryParse(usr.longitude, out double castLong))
                 {
-                    double castLat = double.Parse(usr.latitude);
-                    double castLong = double.Parse(usr.longitude);
                     //Only add valid users with correct coordinates
                     if (castLat >= LatitudeMinimum && castLat <= LatitudeMaximum && castLong >= LongitudeMinimum && castLong <= LongitudeMaximum)
                     {
                         //Get the user location from API and compare against central London coordinates
-                        GeoCoordinate userLocation = new GeoCoordinate(double.Parse(usr.latitude), double.Parse(usr.longitude));
+                        GeoCoordinate userLocation = new GeoCoordinate(castLat, castLong);
                         double distanceInMetres = userLocation.GetDistanceTo(londonCoordinates);
-                        double distanceInMiles = 0;
                         //if the distance is valid
                         if (distanceInMetres > 0)
                         {
                             //convert the metres to miles
-                            distanceInMiles = (distanceInMetres * MetresToMiles);
+                            double distanceInMiles = (distanceInMetres * MetresToMiles);
                             if (distanceInMiles <= DistanceToLondonRequirement)
                             {
-                                usersWithin60Miles.Add(usr);
+                                usersWithinLondonLimit.Add(usr);
                             }
                         }
                     }
                 }
-
-                //return only users within 60 miles of the center of london
-                return Ok(usersWithin60Miles);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"API: Exception thrown when retreiving londons users: {ex}");
             }
 
-            return BadRequest();
+            return usersWithinLondonLimit;
         }
     }
 }

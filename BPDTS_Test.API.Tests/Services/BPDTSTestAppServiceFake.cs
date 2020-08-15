@@ -56,6 +56,9 @@ namespace BPDTS_Test.API.Tests.Services
 
         public async Task<List<User>> GetUsersByCity(string city)
         {
+            if (city != "London"){
+                return null;
+            }
             return MockLondonUsers;
         }
     }
